@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  webserver:
+    build: 
+      context: ./docker_builder/app
+    container_name: "${APP_NAME}-app"
+    restart: 'always'
+    ports:
+      - "80:80"
+      - "443:443"
+    links: 
+      - mysql
+    volumes: 
+      - ${APP_DIR-./app}:/var/www/html
+      - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/php.ini
+      - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
+      - ${DIR_CONF-./config/dir/dir.conf}:/etc/apache2/mods-enabled/dir.conf
+      - ${LOG_DIR-./logs/apache2}:/var/log/apache2
+  mysql:
+    image: mysql:5.7
+    container_name: "${APP_NAME}-mysql"
+    restart: 'always'
+    ports:
+      - "3306:3306"
+    volumes: 
+      - ${MYSQL_SYSTEM_DIR-./mysql}:/var/lib/mysql
+      - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: "${APP_NAME}-phpmyadmin"
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - '8080:80'
+    volumes: 
+      - /sessions
+  redis:
+    container_name: '${APP_NAME}-redis'
+    image: redis:latest
+    ports:
+      - "6379:6379"

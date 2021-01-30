@@ -1,9 +1,0 @@
-/app/*
-!/app/index.php
-/logs/apache2/*
-/logs/mysql/*
-!/logs/apache2/.gitkeep
-!/logs/mysql/.gitkeep
-/mysql/*
-!/mysql/.gitkeep
-.idea

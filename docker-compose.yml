@@ -1,19 +1,17 @@
-version: "3"
+version: "3.7"
 
 services:
-  webserver:
-    build: 
-      context: ./docker_builder/app
+  sample-app:
+    build:
+      context: ./docker_builder
     container_name: "${APP_NAME}-app"
     restart: 'always'
     ports:
-      - "80:80"
-      - "443:443"
-    links: 
-      - mysql
-    volumes: 
+      - 127.0.0.1:8080:80
+    volumes:
       - ${APP_DIR-./app}:/var/www/html
       - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/php.ini
+      - ${XDEBUG_INI-./config/php/php.ini}:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
       - ${DIR_CONF-./config/dir/dir.conf}:/etc/apache2/mods-enabled/dir.conf
       - ${LOG_DIR-./logs/apache2}:/var/log/apache2
@@ -23,7 +21,7 @@ services:
     restart: 'always'
     ports:
       - "3306:3306"
-    volumes: 
+    volumes:
       - ${MYSQL_SYSTEM_DIR-./mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
     environment:
@@ -40,8 +38,8 @@ services:
       PMA_HOST: mysql
       PMA_PORT: 3306
     ports:
-      - '8080:80'
-    volumes: 
+      - '8081:80'
+    volumes:
       - /sessions
   redis:
     container_name: '${APP_NAME}-redis'

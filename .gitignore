@@ -1,0 +1,16 @@
+.idea
+
+/app/*
+!/app/public/index.php
+
+/logs/apache2/*
+/logs/mysql/*
+/mysql/*
+/mongodb/*
+
+!/logs/apache2/.gitkeep
+!/logs/mysql/.gitkeep
+!/logs/mongodb/.gitkeep
+
+!/mysql/.gitkeep
+!/mongodb/.gitkeep

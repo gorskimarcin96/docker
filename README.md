@@ -1,8 +1,9 @@
 # RUN PROJECT
 1. Put your project to /app.
 2. Run command: `sudo sh run.sh`.
-3. [localhost:8080](http://localhost:8080) - this is your app.
-3. [localhost:8081](http://localhost:8081) - this is your phpMyAdmin.
+3. [localhost:8001](http://localhost:8001) - this is your app.
+3. [localhost:8002](http://localhost:8002) - this is your phpMyAdmin.
+3. [localhost:8003](http://localhost:8003) - this is your noSqlClient.
 
 ## CONFING XDEBUG ON PHPSTORM
 ### 1. Listen [Megadeth](https://www.youtube.com/watch?v=3qzBGYG786Y&list=PLxzSZG7g8c8wkI0oLUmZTcPMB_ej6Kknk)! :guitar::metal::fire:
@@ -21,7 +22,7 @@
 * Add server
 * Set name: **yourTheBestName**
 * Set host: **localhost**
-* Set port: **8080**
+* Set port: **8001**
 * Select debugger: **Xdebug**
 * Check: **Use path mappings**
 * Set in **Project files** -> **absolute path on the server**: `/var/www/html`

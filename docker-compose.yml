@@ -15,6 +15,8 @@ services:
       - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
       - ${DIR_CONF-./config/dir/dir.conf}:/etc/apache2/mods-enabled/dir.conf
       - ${LOG_DIR-./logs/apache2}:/var/log/apache2
+    networks:
+      - app-network
   mysql:
     image: mysql:5.7
     container_name: "${APP_NAME}-mysql"
@@ -26,9 +28,12 @@ services:
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
     environment:
       MYSQL_DATABASE: ${DATABASE_NAME}
-      MYSQL_USER: ${DATABSE_USER}
+      MYSQL_USER: ${DATABASE_USER}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - app-network
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
@@ -42,31 +47,42 @@ services:
       - 127.0.0.1:8002:80
     volumes:
       - /sessions
+    networks:
+      - app-network
   mongo:
     image: mongo:4.2
-    restart: always
+    restart: 'always'
     container_name: "${APP_NAME}-mongo"
     volumes:
       - ${MONGODB_SYSTEM_DIR-./mongodb}:/data/db
       - ${MONGODB_LOG_DIR-./logs/mongodb}:/var/log/mongodb
     environment:
       MONGO_INITDB_DATABASE: ${DATABASE_NAME}
-      MONGO_INITDB_ROOT_USERNAME: ${DATABSE_USER}
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "27017:27017"
-  mongoclient:
-    image: mongoclient/mongoclient
-    container_name: "${APP_NAME}-mongoclient"
+    networks:
+      - app-network
+  mongo-express:
+    image: mongo-express
     restart: always
     ports:
-      - 127.0.0.1:8003:3000
+      - 127.0.0.1:8003:8081
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DATABSE_USER}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DATABASE_USER}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${DATABASE_PASSWORD}
+    networks:
+      - app-network
   redis:
     container_name: '${APP_NAME}-redis'
-    restart: always
-    image: redis:latest
+    restart: 'always'
+    image: library/redis:4.0.1
     ports:
       - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

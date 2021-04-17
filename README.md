@@ -18,7 +18,7 @@
 * In browser click **left** mouse button on `bug extension` and choose `debug`.
 
 ### 3. Add server container to PhpStorm
-* PhpStorm's settings (**ctrl+shift+s**) | Languages & Frameworks | PHP | Servers
+* PhpStorm's settings (**ctrl+alt+s**) | Languages & Frameworks | PHP | Servers
 * Add: server
 * Set name: **yourTheBestName**
 * Set host: **localhost**
@@ -36,7 +36,7 @@
 * IDE key(session id): **PHPSTORM**.
 
 ### 5. Configure xdebug in PHPSTORM
-* PhpStorm's settings (**ctrl+shift+s**) | Languages & Frameworks | PHP | Debug.
+* PhpStorm's settings (**ctrl+alt+s**) | Languages & Frameworks | PHP | Debug.
 * Add debug port: **9003**.
 * In section Xdebug check all checkboxes. 
 

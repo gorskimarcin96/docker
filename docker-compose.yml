@@ -1,38 +1,42 @@
-version: "3"
+version: "3.7"
 
 services:
-  webserver:
-    build: 
-      context: ./docker_builder/app
+  app:
+    build:
+      context: ./docker_builder
     container_name: "${APP_NAME}-app"
     restart: 'always'
     ports:
-      - "80:80"
-      - "443:443"
-    links: 
-      - mysql
-    volumes: 
+      - 127.0.0.1:8001:80
+    volumes:
       - ${APP_DIR-./app}:/var/www/html
       - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/php.ini
+      - ${XDEBUG_INI-./config/php/php.ini}:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - ${VHOSTS_DIR-./config/vhosts}:/etc/apache2/sites-enabled
       - ${DIR_CONF-./config/dir/dir.conf}:/etc/apache2/mods-enabled/dir.conf
       - ${LOG_DIR-./logs/apache2}:/var/log/apache2
+    networks:
+      - app-network
   mysql:
     image: mysql:5.7
     container_name: "${APP_NAME}-mysql"
     restart: 'always'
     ports:
       - "3306:3306"
-    volumes: 
+    volumes:
       - ${MYSQL_SYSTEM_DIR-./mysql}:/var/lib/mysql
       - ${MYSQL_LOG_DIR-./logs/mysql}:/var/log/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - app-network
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    restart: always
     container_name: "${APP_NAME}-phpmyadmin"
     links:
       - mysql
@@ -40,11 +44,45 @@ services:
       PMA_HOST: mysql
       PMA_PORT: 3306
     ports:
-      - '8080:80'
-    volumes: 
+      - 127.0.0.1:8002:80
+    volumes:
       - /sessions
+    networks:
+      - app-network
+  mongo:
+    image: mongo:4.2
+    restart: 'always'
+    container_name: "${APP_NAME}-mongo"
+    volumes:
+      - ${MONGODB_SYSTEM_DIR-./mongodb}:/data/db
+      - ${MONGODB_LOG_DIR-./logs/mongodb}:/var/log/mongodb
+    environment:
+      MONGO_INITDB_DATABASE: ${DATABASE_NAME}
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 127.0.0.1:8003:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DATABASE_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DATABASE_PASSWORD}
+    networks:
+      - app-network
   redis:
     container_name: '${APP_NAME}-redis'
-    image: redis:latest
+    restart: 'always'
+    image: library/redis:4.0.1
     ports:
       - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
